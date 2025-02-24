@@ -6,7 +6,6 @@ updatedDate: '2025-02-24'
 heroImage: { src: './thumbnail.jpg', color: '#64574D' }
 tags: ['tag1', 'tag2']
 language: 'English'
-draft: true
 comment: true
 ---
 
@@ -60,3 +59,4 @@ for i in range(100):
 [电梯调度算法大赛_飞桨大赛-飞桨AI Studio星河社区](https://aistudio.baidu.com/competition/detail/11/0/introduction)
 
 [LiftSim_baseline - 飞桨AI Studio星河社区](https://aistudio.baidu.com/projectdetail/100632)
+
