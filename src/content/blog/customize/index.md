@@ -1,13 +1,12 @@
 ---
-title: Personalized Customization Guide
-publishDate: 2024-07-27
+title: 'Personalized Customization Guide'
 description: 'astro-theme-pure Personalized Customization Guide'
-tags:
-  - Waline
-  - Vercel
-  - Supabase
+publishDate: '2024-07-27'
 heroImage: { src: './thumbnail.jpg', color: '#64574D' }
+tags: ['Waline', 'Vercel', 'Supabase']
 language: 'English'
+draft: true
+comment: true
 ---
 
 ## Site Configuration

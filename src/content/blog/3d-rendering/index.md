@@ -1,12 +1,12 @@
 ---
 title: 'What Is 3D Rendering? Complete Guide to 3D Visualization'
-publishDate: 2024-12-09
 description: '3D imagery has the power to bring cinematic visions to life and help accurately plan tomorrow’s cityscapes. Here, 3D expert Ricardo Ortiz explains how it works.'
-tags:
-  - Example
-  - 3D
-language: 'English'
+publishDate: '2024-12-09'
 heroImage: { src: './thumbnail.jpg', color: '#D58388' }
+tags: ['Example', '3D']
+language: 'English'
+draft: true
+comment: true
 ---
 
 3D rendering is all around us. From huge action movies to car commercials to previews of upcoming buildings or product designs, 3D visualization has become so widespread and realistic that you probably don’t even know it’s there.

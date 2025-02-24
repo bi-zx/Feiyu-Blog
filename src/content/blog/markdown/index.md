@@ -1,11 +1,12 @@
 ---
-title: Markdown Syntax Support
-publishDate: 2024-07-26 08:00:00
+title: 'Markdown Syntax Support'
 description: 'Markdown is a lightweight markup language.'
-tags:
-  - Markdown
+publishDate: '2024-07-26 08:00:00'
 heroImage: { src: './thumbnail.jpg', color: '#B4C6DA' }
+tags: ['Markdown']
 language: 'English'
+draft: true
+comment: true
 ---
 
 ## Basic Syntax

@@ -130,7 +130,7 @@ export const integ: IntegrationUserConfig = {
     server: 'https://waline-iota-rouge.vercel.app/',
 
     // Refer https://waline.js.org/en/guide/features/emoji.html
-    emoji: ['bmoji', 'tieba', 'bilibili'],
+    emoji: ['bmoji', 'tieba'],
     // Refer https://waline.js.org/en/reference/client/props.html
     additionalConfigs: {
       // search: false,
