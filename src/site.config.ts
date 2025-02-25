@@ -127,7 +127,7 @@ export const integ: IntegrationUserConfig = {
     enable: true,
     // Server service link
     // Refer https://waline.js.org/guide/get-started/
-    server: 'https://waline-iota-rouge.vercel.app/',
+    server: 'https://waline.feiyu05.top/',
 
     // Refer https://waline.js.org/en/guide/features/emoji.html
     emoji: ['bmoji', 'tieba'],
