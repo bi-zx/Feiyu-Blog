@@ -8,18 +8,18 @@ language: '中文'
 comment: true
 ---
 
-#### CUDA cuDNN安装
+## CUDA cuDNN安装
 
 1. 下载对应版本CUDA，cuDNN，安装CUDA
 2. 在cmd中输入`nvcc -V` ，返回CUDA版本则说明安装成功
 3. 安装时若遇到“You already have a newer version of the NVIDIA Frameview SDK installed”，先把电脑已经存在的FrameView SDK 卸载掉，把C:\Program Files\NVIDIA Corporation\FrameViewSDK文件夹删掉
 4. 将cuDNN解压，bin, include, lib文件夹复制到C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\vxx.x目录下并覆盖
 
-#### TensorFlow安装
+## TensorFlow安装
 
 CUDA 10.1 tensorflow 2.1.0
 
-```bash
+```shell
 conda create --prefix=E:\envs\tf2 python=3.6.13
 activate E:\envs\tf2
 
@@ -33,7 +33,7 @@ conda install scipy=1.2.0
 
 CUDA 11.8	TensorFlow 2.6.0
 
-```bash
+```shell
 conda create -n tf26 python=3.8.18
 activate tf26
 
@@ -44,7 +44,7 @@ conda install numpy=1.19.5 matplotlib=3.3.4 scipy scikit-learn pandas
 
 CUDA 11.8	TensorFlow 2.10.0
 
-```bash
+```shell
 conda create -n tf210 python=3.8.18
 activate tf210
 
@@ -61,11 +61,11 @@ import tensorflow as tf
 tf.config.list_physical_devices('GPU')
 ```
 
-#### PyTorch安装
+## PyTorch安装
 
 CUDA 11.8	PyTorch2.3.1
 
-```bash
+```shell
 conda create -n torch2 python=3.8.19
 activate torch2
 
@@ -74,7 +74,7 @@ conda install pytorch==2.3.1 torchvision==0.18.1 torchaudio==2.3.1 pytorch-cuda=
 
 CUDA 11.8	PyTorch1.13.1
 
-```bash
+```shell
 conda create -n torch1 python=3.7.16
 activate torch1
 
@@ -91,9 +91,9 @@ print(torch.cuda.device_count())
 
 
 
-### Tested build configurations on Windows
+## Tested build configurations on Windows
 
-#### GPU
+### GPU
 
 | Version               | Python version | Compiler           | Build tools         | cuDNN | CUDA |
 | :-------------------- | :------------- | :----------------- | :------------------ | :---- | :--- |
