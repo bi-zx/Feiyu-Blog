@@ -63,16 +63,26 @@ for i in range(100):
 
 WSL:
 
-```
+```shell
 conda create -n GAN python=3.6.15
 conda activate GAN
-pip install paddlepaddle==1.8.5 parl==1.4 gym==0.18.0 atari-py==0.2.6 rlschool==0.3.1 -i https://mirrors.aliyun.com/pypi/simple
+
+pip install rlschool==0.3.1 gym==0.18.0 atari-py==0.2.6 metagym==0.1.1 matplotlib==3.3.4 numpy==1.19.5 scikit-learn==0.24.2 make_env==0.0.7 pyglet==1.5.0 mock==3.0.5 parl==1.4 -i https://mirrors.aliyun.com/pypi/simple
+
+pip install paddlepaddle-gpu==1.8.5.post97 -i https://mirrors.aliyun.com/pypi/simple
+pip install paddlepaddle==1.8.5 -i https://mirrors.aliyun.com/pypi/simple
 ```
 
 ```
 conda create -n GAN python=3.6.15
 conda activate GAN
 pip install paddlepaddle-gpu==1.8.5.post97 parl==1.4 gym==0.18.0 atari-py==0.2.6 rlschool==0.3.1 -i https://mirrors.aliyun.com/pypi/simple
+```
+
+```
+conda create -n GAN python=3.7.12
+conda activate GAN
+pip install paddlepaddle==1.8.5 parl==1.4 gym==0.18.0 atari-py==0.2.6 rlschool==0.3.1 -i https://mirrors.aliyun.com/pypi/simple
 ```
 
 
@@ -93,16 +103,5 @@ pip install paddlepaddle-gpu==1.8.5.post97 -i https://mirrors.aliyun.com/pypi/si
 pip install paddlepaddle==1.8.5 -i https://mirrors.aliyun.com/pypi/simple
 ```
 
-```
-#rlschool与gym可用
-conda create -n LiftSim python=3.6.15
-activate LiftSim
 
-pip install rlschool==0.3.2 gym==0.18.0 metagym==0.1.1 matplotlib==3.3.4 numpy==1.19.5 scikit-learn==0.24.2 make_env==0.0.7 pyglet==1.5.0 mock==3.0.5 -i https://mirrors.aliyun.com/pypi/simple
-
-pip install parl==1.4.1 -i https://mirrors.aliyun.com/pypi/simple
-
-pip install paddlepaddle-gpu==1.8.5.post97 -i https://mirrors.aliyun.com/pypi/simple
-pip install paddlepaddle==1.8.5 -i https://mirrors.aliyun.com/pypi/simple
-```
 

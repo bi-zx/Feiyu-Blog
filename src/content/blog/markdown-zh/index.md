@@ -5,7 +5,7 @@ publishDate: '2024-07-26 08:00:00'
 heroImage: { src: './thumbnail.jpg', color: '#B4C6DA' }
 tags: ['Markdown']
 language: '中文'
-draft: true
+draft: false
 comment: true
 ---
 

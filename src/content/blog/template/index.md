@@ -11,3 +11,5 @@ comment: true
 ---
 
 Write your content here.
+
+Markdown 文章应该有正确的标题（`#`、`##` 之类的），否侧会导致 `generateToc` 解析失败。
