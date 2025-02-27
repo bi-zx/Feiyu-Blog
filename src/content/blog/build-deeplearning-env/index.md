@@ -17,21 +17,7 @@ comment: true
 
 ## TensorFlow安装
 
-CUDA 10.1 tensorflow 2.1.0
-
-```shell
-conda create --prefix=E:\envs\tf2 python=3.6.13
-activate E:\envs\tf2
-
-conda install tensorflow-gpu=2.1.0
-pip install keras==2.3.1
-conda install numpy=1.16.6
-conda install matplotlib=3.2.2
-conda install pillow
-conda install scipy=1.2.0
-```
-
-CUDA 11.8	TensorFlow 2.6.0
+CUDA 12.6	TensorFlow 2.6.0
 
 ```shell
 conda create -n tf26 python=3.8.18
@@ -42,14 +28,14 @@ pip install tensorflow-gpu==2.6.0 keras==2.6.0 protobuf==3.20.0 -i https://pypi.
 conda install numpy=1.19.5 matplotlib=3.3.4 scipy scikit-learn pandas
 ```
 
-CUDA 11.8	TensorFlow 2.10.0
+CUDA 12.6	TensorFlow 2.10.0
 
 ```shell
 conda create -n tf210 python=3.8.18
 activate tf210
 
 conda install cudatoolkit=11.3 cudnn=8.2.1
-pip install tensorflow-gpu==2.10.0 keras==2.10.0 protobuf==3.20 -i https://pypi.tuna.tsinghua.edu.cn/simple/
+pip install tensorflow-gpu==2.10.0 keras==2.10.0 -i https://pypi.tuna.tsinghua.edu.cn/simple/
 conda install numpy=1.22 matplotlib=3.7.2 scipy scikit-learn pandas
 pip install opencv-python==4.4.0.44 tqdm imutils PyYAML tensorboard seaborn chardet -i https://pypi.tuna.tsinghua.edu.cn/simple/
 ```
@@ -70,15 +56,6 @@ conda create -n torch2 python=3.8.19
 activate torch2
 
 conda install pytorch==2.3.1 torchvision==0.18.1 torchaudio==2.3.1 pytorch-cuda=11.8 -c pytorch -c nvidia
-```
-
-CUDA 11.8	PyTorch1.13.1
-
-```shell
-conda create -n torch1 python=3.7.16
-activate torch1
-
-conda install pytorch==1.13.1 torchvision==0.14.1 torchaudio==0.13.1 pytorch-cuda=11.7 -c pytorch -c nvidia
 ```
 
 检测PyTorch能否使用GPU
