@@ -27,6 +27,22 @@ activate GAN
 pip install paddlepaddle==1.8.5 parl==1.4 gym==0.18.0 atari-py==0.2.6 rlschool==0.3.1 protobuf==3.19.6 metagym==0.1.1 matplotlib==3.3.4 numpy==1.19.5 scikit-learn==0.24.2 make_env==0.0.7 pyglet==1.5.0 mock==3.0.5 -i https://mirrors.aliyun.com/pypi/simple
 ```
 
+GPU CUDA10.1
+
+```shell
+pip install paddlepaddle-gpu==1.8.5.post107 parl==1.4 gym==0.18.0 atari-py==0.2.6 rlschool==0.3.1 protobuf==3.19.6 metagym==0.1.1 matplotlib==3.3.4 numpy==1.19.5 scikit-learn==0.24.2 make_env==0.0.7 pyglet==1.5.0 mock==3.0.5 -i https://mirrors.aliyun.com/pypi/simple
+```
+
+GPU CUDA12.0 Latest
+
+```shell
+conda create -n test python=3.9
+activate test
+
+python -m pip install paddlepaddle-gpu==2.5.2.post120 -f https://www.paddlepaddle.org.cn/whl/windows/mkl/avx/stable.html
+pip install numpy==1.23.5 parl==2.2.1 gym==0.26.2 pygame -i https://mirrors.aliyun.com/pypi/simple
+```
+
 在Pycharm IDE中配置该虚拟环境，运行实例代码：
 
 `LiftSim_example.py`
@@ -46,7 +62,7 @@ for i in range(100):
 
 ```shell
 xparl start --port 8010
-python LiftSim_baseline/A2C/train.py
+python xxx/LiftSim_baseline/A2C/train.py
 ```
 
 > 参考链接：
