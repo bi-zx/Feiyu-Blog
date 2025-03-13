@@ -16,7 +16,7 @@ comment: true
 
 ### 代码
 
-```c++
+```cpp
 #include <iostream>
 
 int main() {
@@ -40,7 +40,7 @@ $a$ 和 $b$ 都是正整数，直接相除是向下取整。所以我们需要�
 
 ### 代码
 
-```c++
+```cpp
 #include <iostream>
 
 int main() {
@@ -63,7 +63,7 @@ int main() {
 
 这里推荐使用 `getline(cin,s)` 进行输入。它可以读入一行字符串存到一个名为 `s` 的 `string` 对象中。用法如下：
 
-```c++
+```cpp
 string s;
 getline(cin,s);
 ```
@@ -78,7 +78,7 @@ getline(cin,s);
 
 我们可以观察以下代码：
 
-```c++
+```cpp
 int n;
 string s;
 
@@ -90,7 +90,7 @@ cout<<n<<endl<<s;
 
 我们设置输入为如下：
 
-```c++
+```cpp
 114514
 What can I say?
 ```
@@ -99,7 +99,7 @@ What can I say?
 
 因此，这段代码应该补充一个 `getline(cin,s)`。
 
-```c++
+```cpp
 int n;
 string s;
 
@@ -122,7 +122,7 @@ cout<<n<<endl<<s;
 
 ### 代码
 
-```c++
+```cpp
 #include <iostream>
 #include <string>
 
@@ -151,7 +151,7 @@ int main() {
 
 ### 代码
 
-```c++
+```cpp
 #include <iostream>
 #include <string>
 
@@ -179,7 +179,7 @@ int main() {
 
 ### 代码
 
-```c++
+```cpp
 #include <iostream>
 #include <string>
 
@@ -237,7 +237,7 @@ int main() {
 
 ### 代码
 
-```c++
+```cpp
 #include <iostream>
 #include <string>
 
@@ -332,7 +332,7 @@ int main() {
 
 ### 代码
 
-```c++
+```cpp
 #include <iostream>
 #include <string>
 #include <map>
@@ -447,7 +447,7 @@ $$
 
 ### 代码
 
-```c++
+```cpp
 #include <iostream>
 #include <string>
 
@@ -482,7 +482,7 @@ int main() {
 
 ### 代码
 
-```c++
+```cpp
 #include <iostream>
 #include <queue>
 
@@ -566,7 +566,7 @@ int main() {
 
 ### 代码
 
-```c++
+```cpp
 #include <iostream>
 #include <queue>
 
@@ -657,7 +657,7 @@ int main() {
 
 ### 代码
 
-```c++
+```cpp
 #include<bits/stdc++.h>
 using namespace std;
 typedef long long ll;
@@ -697,7 +697,7 @@ int main(){
 
 ### 代码
 
-```c++
+```cpp
 #include<cstdio>
 #include<map>
 #include<queue>
