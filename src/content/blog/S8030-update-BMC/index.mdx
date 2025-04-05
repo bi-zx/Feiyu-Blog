@@ -1,0 +1,59 @@
+---
+title: 'S8030主板BMC升级记录'
+description: '记录将S8030GM4NE-2T主板BMC升级到最新的过程'
+publishDate: '2025-03-26'
+heroImage: { src: './thumbnail.jpg', color: '#64574D' }
+tags: ['server']
+language: '中文'
+draft: false
+comment: true
+---
+
+import { Steps, Aside, Tabs, TabItem } from 'astro-pure/user'
+
+## 一、准备过程
+
+更新BMC固件时注意：早期版本的S8030仅有32MB BMC ROM，3.0后所有BMC固件均是依照64MB BMC ROM设计的，使用3.0以上的BMC固件硬刷会导致BMC变砖。
+
+32MB ROM的所有主板的序列号可以在[4.07版本的BMC下载](https://www.mitaccomputing.com/en/downloads/details/MitacServer/S8030GM4NE-2T_BMC_1521)中找到，在 S8030 R02 Shipment SN with 32MB BMC ROM.xls 和 S8030 R03 Shipment SN for 32MB BMC ROM.xls 中查找你的主板SN，如果你的SN不在这两个表格中，则主板是64MB的ROM，可以进行下一步。
+
+<Aside type='danger'>
+The BMC firmware v4.07 requires 64MB BMC chip. Deploying BMC firmware v4.07 to earlier S8030 with 32MB BMC chip shall cause permanent system failure and the system cannot be revived in the field.
+
+The BMC firmware v4.07 CANNOT be deployed to S8030 with 32MB BMC chip. Please be sure to check the S/N of your S8030 by reading FRU data under Product Information before updating. You can refer to "S8030 R02 Shipment SN with 32MB BMC ROM.xls" and "S8030 R03 Shipment SN for 32MB BMC ROM.xls" to check if your S8030 is using 32MB BMC chip after downloading and unzipping the BMC file.
+
+Please note you need to turn off AC cycle first after upgrading BMC FW to V12.
+</Aside>
+
+## 二、BMC烧写
+
+<Aside type='tip'>
+If upgrade BMC from old version RR11.5 code base to v4.07 V12 code base, it could only use socflash for update due to different code size. After BMC is upgraded to above v4.xx version, all socflash/yafuflash/WEB works.
+</Aside>
+根据官网说明，v3.03版本BMC升级到v4.07只能使用socflash烧写。查看`S8030_BMC_v407-R12`中的文件，只有`Updat_BMC_SOC.nsh`是使用socflash烧写的，故采用UEFI shell烧写方式。
+
+进入BIOS修改启动项，将`UEFI: Built-in EFI Shell`移动至第一位。准备一个U盘，格式化为FAT32并将`S8030_BMC_v407-R12`文件夹拷入，插上主板，重启进入UEFI shell。
+
+查看你的U盘盘符，我的是`FS0`
+
+输入`fs0:`进入U盘，cd到S8030_BMC_v407-R12文件夹，输入`Updat_BMC_SOC.nsh`开始烧写。
+
+大约十分钟烧写完成后，主板重新上电，即可通过网页连接BMC，看到已成功升级到v4.07。
+
+## 三、BMC后续升级
+
+升级到v4.07后，可以在BMC网页界面升级BMC。BMC不可跨刷，应当每个大版本刷一次。
+
+将`S8030_BMC-v5.0.zip`解压，上传时选择`BMC8030010500.ima`，升级到v5.0。
+
+将`S8030_BMC-v6.02.zip`解压，上传时选择`BMC8030010602.ima`，升级到v6.02。
+
+
+
+> 参考资料：
+>
+> [泰安S8030 踩坑记录](https://www.bilibili.com/opus/779237737810100248)
+>
+> [泰安S8030安装&使用简单说明](https://www.bilibili.com/opus/738422556168552473)
+>
+> [AMD EPYC SP3 泰安S8030主板 入门避坑指南（常见使用问题汇总）](https://www.bilibili.com/opus/852109210756841475)
