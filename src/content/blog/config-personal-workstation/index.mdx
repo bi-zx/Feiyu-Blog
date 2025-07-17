@@ -674,6 +674,92 @@ sudo /etc/init.d/samba-ad-dc restart
 
 ### 2.8 使用ipmitool管理散热
 
+**华南H12D**
+
+安装 ipmitool
+
+```bash
+sudo apt install ipmitool
+```
+
+查看当前所有风扇转速
+
+```bash
+sudo ipmitool sdr | grep FAN
+```
+
+提示：
+
+```
+FAN1             | 1200 RPM          | ok
+FAN2             | 960 RPM           | ok
+FAN3             | 880 RPM           | ok
+FAN4             | 880 RPM           | ok
+FAN5             | 0 RPM             | nr
+FAN6             | 0 RPM             | nr
+FAN7             | 0 RPM             | nr
+FAN8             | 0 RPM             | nr
+```
+
+控制风扇转速百分比
+
+```bash
+#ssh连接服务器
+sudo ipmitool raw 0x0e 0x65 0 50
+```
+
+```cmd
+#其他电脑远程控制BMC
+ipmitool.exe -I lanplus -H <BMC_IP> -U admin -P <BMC_Password> raw 0x0e 0x65 0 50
+```
+
+0x65 后面的0代表手动控速，1为自动(全速)
+
+50代表50%，1代表1%，90代表90%，0x64代表全速
+
+开机时自动设置风扇转速，通过编辑系统的启动脚本实现：
+
+```bash
+sudo vim /etc/init.d/fan_control.sh
+```
+
+写入以下脚本内容：
+
+```bash
+#!/bin/sh
+### BEGIN INIT INFO
+# Provides:          fan_control
+# Required-Start:    $local_fs $network $remote_fs
+# Required-Stop:     $local_fs $network $remote_fs
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Fan Control
+# Description:       This script runs a command at startup.
+### END INIT INFO
+
+sudo ipmitool raw 0x0e 0x65 0 60
+
+exit 0
+```
+
+赋予脚本执行权限：
+
+```bash
+sudo chmod +x /etc/init.d/fan_control.sh
+```
+
+更新启动脚本列表：使用 `update-rc.d` 命令将脚本添加到系统的启动脚本列表中。
+
+```bash
+sudo update-rc.d fan_control.sh defaults
+```
+
+重启系统以验证脚本是否在启动时正确运行。
+
+**泰安S8030**
+
+https://www.chiphell.com/thread-2604921-1-1.html
+
 服务器主板风扇控制由BMC接管，BIOS无法自动控制速度，故使用ipmitool控制转速。
 
 根据BMC固件版本的不同，命令可能略有不同。
@@ -692,11 +778,94 @@ sudo apt install ipmitool
 sudo ipmitool sdr | grep FAN
 ```
 
+提示：
+
+```bash
+CPU_FAN          | 552 RPM           | ok
+SYS_FAN_1        | 1242 RPM          | ok
+SYS_FAN_2        | 552 RPM           | ok
+SYS_FAN_3        | 690 RPM           | ok
+SYS_FAN_4        | no reading        | ns
+SYS_FAN_5        | no reading        | ns
+SYS_FAN_6        | no reading        | ns
+SYS_FAN_7        | no reading        | ns
+SYS_FAN_8        | no reading        | ns
+SYS_FAN_9        | no reading        | ns
+SYS_FAN_10       | no reading        | ns
+SYS_FAN_11       | no reading        | ns
+SYS_FAN_12       | no reading        | ns
 ```
-ipmiutil cmd -N 192.168.66.20 -U root -P 'xx'  raw 0x2e 0x44 0xfd 0x19 0x00 0x02 0x01 0x64
-ipmiutil cmd 0x2e 0x44 0xfd 0x19 0x00 0x02 0x01 0x64 -N 192.168.66.20 -U root -P 'xx'
-ipmitool -I lanplus -H 192.168.66.20 -U root -P 'xx' raw 0x2e 0x44 0xfd 0x19 0x00 0x02 0x01 0x64
+
+控制风扇转速百分比
+
+```bash
+#ssh连接服务器
+sudo ipmitool raw 0x2e 0x44 0xfd 0x19 0x00 0x02 0x01 0x64
 ```
+
+```cmd
+#其他电脑远程控制BMC
+ipmitool.exe -I lanplus -H <BMC_IP> -U root -P <BMC_Password> raw 0x2e 0x44 0xfd 0x19 0x00 0x02 0x01 0x64
+```
+
+0x02 is the PWM id from the list attached below in hex from 0x0 - 0x5（对应我上面的结果，CPU_FAN是0x0，SYS_FAN_1是0x02）
+0x64 is the PWM duty cycle from 0 - 100 in hex 0x0 - 0x64（速度百分比）
+Fan List:
+CPU0_FAN (PWM0)
+CPU1_FAN (PWM1)
+SYS_FAN_1(PWM2)
+SYS_FAN_2(PWM3)
+SYS_FAN_3(PWM4)
+SYS_FAN_4(PWM5)
+
+
+
+如果上述命令报错，可能是BMC版本不一样导致的，可以尝试以下命令：(我的主板上以下命令不起作用)
+
+Get/Set PWM Duty
+
+```bash
+#ssh连接服务器
+sudo ipmitool raw 0x2e 0x5 0xfd 0x19 0x00 <PWM ID> ＜0x00-0x64|0xfe|0xff>
+
+#其他电脑远程控制BMC
+ipmitool.exe -I lanplus -H <BMC_IP> -U root -P <BMC_Password> raw 0x2e 0x5 0xfd 0x19 0x00 <PWM ID> ＜0x00-0x64|0xfe|0xff>
+```
+
+PWM ID : 0,1,2,3,4,5
+
+0x00-0x64 = 0 -100% duty
+
+0xfe =Get Current PWM Duty
+
+0xff = 自动控制
+
+Example:
+
+To read current PWM duty cyle:
+
+```bash
+#ssh连接服务器
+sudo ipmitool raw 0x2e 0x05 0xfd 0x19 0x00 0x03 0xfe
+
+#其他电脑远程控制BMC
+ipmitool.exe -I lanplus -H <BMC_IP> -U root -P <BMC_Password> raw 0x2e 0x05 0xfd 0x19 0x00 0x03 0xfe
+```
+
+
+To set PWM duty cycle to 60 on PWM ID 0
+
+```bash
+#ssh连接服务器
+sudo ipmitool raw 0x2e 0x05 0xfd 0x19 0x00 0x00 0x3C
+
+#其他电脑远程控制BMC
+ipmitool.exe -I lanplus -H <BMC_IP> -U root -P <BMC_Password> raw 0x2e 0x05 0xfd 0x19 0x00 0x00 0x3C
+```
+
+
+
+[AutoFan：适配泰安S8030显卡机自动调节系统风扇组件](https://github.com/sonmihpc/AutoFan)
 
 
 
@@ -705,13 +874,13 @@ ipmitool -I lanplus -H 192.168.66.20 -U root -P 'xx' raw 0x2e 0x44 0xfd 0x19 0x0
 1.使用ipmitool查询bmc用户
 
 ```cmd
-ipmitool.exe -H 192.168.xx.xx -I lanplus -U root -P ipmi_password user list
+ipmitool.exe -H 192.168.xx.xx -I lanplus -U root -P <Your_IPMI_Password> user list
 ```
 
 2.设置bmc用户的用户名
 
 ```cmd
-ipmitool.exe -H 192.168.xx.xx -I lanplus -U root -P ipmi_password user set name 1 admin
+ipmitool.exe -H 192.168.xx.xx -I lanplus -U root -P <Your_IPMI_Password> user set name 1 admin
 ```
 
 （其中1为要设置的用户ID，admin为要设置的用户名）
@@ -719,7 +888,7 @@ ipmitool.exe -H 192.168.xx.xx -I lanplus -U root -P ipmi_password user set name 
 3.为指定的bmc用户 id设置密码
 
 ```cmd
-ipmitool.exe -H 192.168.xx.xx -I lanplus -U root -P ipmi_password user set password 1 admin
+ipmitool.exe -H 192.168.xx.xx -I lanplus -U root -P <Your_IPMI_Password> user set password 1 admin
 ```
 
 (1为用户id,admin为需要设置的密码)
@@ -727,7 +896,7 @@ ipmitool.exe -H 192.168.xx.xx -I lanplus -U root -P ipmi_password user set passw
 4.禁止指定的用户 id访问 BMC
 
 ```cmd
-ipmitool.exe -H 192.168.xx.xx -I lanplus -U root -P ipmi_password user disable 1
+ipmitool.exe -H 192.168.xx.xx -I lanplus -U root -P <Your_IPMI_Password> user disable 1
 ```
 
 (禁用用户id为1的用户访问bmc)
@@ -735,37 +904,37 @@ ipmitool.exe -H 192.168.xx.xx -I lanplus -U root -P ipmi_password user disable 1
 5.为指定的bmc用户设置权限级别
 
 ```cmd
-ipmitool.exe -H 192.168.xx.xx -I lanplus -U root -P ipmi_password user priv user_id> privil
+ipmitool.exe -H 192.168.xx.xx -I lanplus -U root -P <Your_IPMI_Password> user priv user_id> privil
 ```
 
 bmc执行冷重启
 
 ```cmd
-ipmitool.exe -H 192.168.xx.xx -I lanplus -U root -P ipmi_password mc reset cold
+ipmitool.exe -H 192.168.xx.xx -I lanplus -U root -P <Your_IPMI_Password> mc reset cold
 ```
 
 bmc热重启
 
 ```cmd
-ipmitool.exe -H 192.168.xx.xx -I lanplus -U root -P ipmi_password mc reset warm
+ipmitool.exe -H 192.168.xx.xx -I lanplus -U root -P <Your_IPMI_Password> mc reset warm
 ```
 
 6.使用ipmitool设置服务器电源策略
 
 ```cmd
-ipmitool.exe -H 192.168.xx.xx -I lanplus -U root -P ipmi_password chassis policy list
+ipmitool.exe -H 192.168.xx.xx -I lanplus -U root -P <Your_IPMI_Password> chassis policy list
 ```
 
 查看当前支持的断电机箱电源策略（always-on，always-off，previous）
 
 ```cmd
-ipmitool.exe -H 192.168.xx.xx -I lanplus -U root -P ipmi_password chassis policy always-off
+ipmitool.exe -H 192.168.xx.xx -I lanplus -U root -P <Your_IPMI_Password> chassis policy always-off
 ```
 
 将电源策略设置为电源恢复时保持 off状态
 
 ```cmd
-ipmitool.exe -H 192.168.xx.xx -I lanplus -U root -P ipmi_password chassis policy previous
+ipmitool.exe -H 192.168.xx.xx -I lanplus -U root -P <Your_IPMI_Password> chassis policy previous
 ```
 
 将电源策略设置为电源恢复时返回到原先的状态。
@@ -773,13 +942,13 @@ ipmitool.exe -H 192.168.xx.xx -I lanplus -U root -P ipmi_password chassis policy
 7.使用ipmitool设置服务器开机启动项
 
 ```cmd
-ipmitool.exe -H 192.168.xx.xx -I lanplus -U root -P ipmi_password chassis bootdev
+ipmitool.exe -H 192.168.xx.xx -I lanplus -U root -P <Your_IPMI_Password> chassis bootdev
 ```
 
 查看当前服务器支持的启动项
 
 ```cmd
-ipmitool.exe -H 192.168.xx.xx -I lanplus -U root -P ipmi_password chassis bootdev pxe
+ipmitool.exe -H 192.168.xx.xx -I lanplus -U root -P <Your_IPMI_Password> chassis bootdev pxe
 ```
 
 设置服务器从pxe网络启动
@@ -787,7 +956,7 @@ ipmitool.exe -H 192.168.xx.xx -I lanplus -U root -P ipmi_password chassis bootde
 8.ipmitool工具 power 指令，可以开机、关机、重启、查看当前状态
 
 ```cmd
-ipmitool.exe -H 192.168.xx.xx -I lanplus -U root -P ipmi_password chassis power
+ipmitool.exe -H 192.168.xx.xx -I lanplus -U root -P <Your_IPMI_Password> chassis power
 ```
 
 查看当前服务器支持的power 选项
@@ -807,8 +976,8 @@ power reset 服务器硬重启
 9.使用ipmitool查看服务器上电时间
 
 ```cmd
-ipmitool.exe -H 192.168.xx.xx -I lanplus -U root -P ipmi_password chassis power chassis poh
-ipmitool.exe -H 192.168.xx.xx -I lanplus -U root -P ipmi_password chassis power chassis restart_cause
+ipmitool.exe -H 192.168.xx.xx -I lanplus -U root -P <Your_IPMI_Password> chassis power chassis poh
+ipmitool.exe -H 192.168.xx.xx -I lanplus -U root -P <Your_IPMI_Password> chassis power chassis restart_cause
 ```
 
 （查看服务器最后一次重启的原因）
@@ -816,40 +985,49 @@ ipmitool.exe -H 192.168.xx.xx -I lanplus -U root -P ipmi_password chassis power 
 10.使用ipmitool工具点亮服务器标识ID灯
 
 ```cmd
-ipmitool.exe -H 192.168.xx.xx -I lanplus -U root -P ipmi_password chassis power chassis identify
+ipmitool.exe -H 192.168.xx.xx -I lanplus -U root -P <Your_IPMI_Password> chassis power chassis identify
 ```
 
 11.使用ipmitool工具查看设置bmc IP
 
 ```cmd
-ipmitool.exe -H 192.168.xx.xx -I lanplus -U root -P ipmi_password chassis power lan print 1
+ipmitool.exe -H 192.168.xx.xx -I lanplus -U root -P <Your_IPMI_Password> chassis power lan print 1
 ```
 
 （查看1通道ip）
 
 ```cmd
-ipmitool.exe -H 192.168.xx.xx -I lanplus -U root -P ipmi_password chassis power lan set 1 ipsrc static
+ipmitool.exe -H 192.168.xx.xx -I lanplus -U root -P <Your_IPMI_Password> chassis power lan set 1 ipsrc static
 ```
 
 (设置1通道ip为静态)
 
 ```cmd
-ipmitool.exe -H 192.168.xx.xx -I lanplus -U root -P ipmi_password chassis power lan set 1 ipaddr 192.168.xx.xx
+ipmitool.exe -H 192.168.xx.xx -I lanplus -U root -P <Your_IPMI_Password> chassis power lan set 1 ipaddr 192.168.xx.xx
 ```
 
 (设置1通道ip)
 
 ```cmd
-ipmitool.exe -H 192.168.xx.xx -I lanplus -U root -P ipmi_password chassis power lan set 1 netmask 255.255.255.0
+ipmitool.exe -H 192.168.xx.xx -I lanplus -U root -P <Your_IPMI_Password> chassis power lan set 1 netmask 255.255.255.0
 ```
 
 (设置1通道子网掩码)
 
 ```cmd
-ipmitool.exe -H 192.168.xx.xx -I lanplus -U root -P ipmi_password chassis power lan set 1 defgw ipaddr 192.168.xx.yy
+ipmitool.exe -H 192.168.xx.xx -I lanplus -U root -P <Your_IPMI_Password> chassis power lan set 1 defgw ipaddr 192.168.xx.yy
 ```
 
 (设置1通道默认网关)
+
+### 2.9 安装编译环境
+
+```bash
+sudo apt install build-essential cmake git
+```
+
+- `build-essential`包提供了编译程序所需的基本工具，如`gcc`、`g++`等。
+- `cmake`是一个跨平台的编译工具，用于生成编译配置文件。
 
 ## 3. DL开发环境配置篇
 
@@ -893,6 +1071,12 @@ sudo apt upgrade
    chmod +x cuda_12.4.1_550.54.15_linux.run
    sudo sh cuda_12.4.1_550.54.15_linux.run
    ```
+
+   如果安装过程中报错`Failed to verify gcc version. See log at /var/log/cuda-installer.log for details.`：
+
+   执行`sudo apt install build-essential`即可解决。
+
+   
 
    可能会报一个警告：
 
@@ -972,6 +1156,203 @@ chmod +x Anaconda3-2024.10-1-Linux-x86_64.sh
 然后会询问你是否要初始化conda，输入yes确认，重开终端窗口之后，就可以看到conda环境可用了（base代表默认环境）。
 
 ### 3.5 安装Docker
+
+[Install Docker Engine on Ubuntu](https://docs.docker.com/engine/install/ubuntu/)
+
+1. 卸载旧版本
+
+```bash
+for pkg in docker.io docker-doc docker-compose docker-compose-v2 podman-docker containerd runc; do sudo apt-get remove $pkg; done
+```
+
+2. Install using the `apt` repository
+
+Set up Docker's apt repository.
+
+```bash
+# Add Docker's official GPG key:
+sudo apt-get update
+sudo apt-get install ca-certificates curl
+sudo install -m 0755 -d /etc/apt/keyrings
+sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+sudo chmod a+r /etc/apt/keyrings/docker.asc
+
+# Add the repository to Apt sources:
+echo \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+  $(. /etc/os-release && echo "${UBUNTU_CODENAME:-$VERSION_CODENAME}") stable" | \
+  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+  
+sudo apt-get update
+```
+
+Install the Docker packages.
+
+```bash
+sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+```
+
+3. 配置Docker
+
+**Manage Docker as a non-root user**
+
+Create the docker group.
+
+```bash
+sudo groupadd docker
+```
+
+Add your user to the docker group.
+
+```bash
+sudo usermod -aG docker $USER
+```
+
+Log out and log back in so that your group membership is re-evaluated.
+
+You can also run the following command to activate the changes to groups:
+
+```bash
+newgrp docker
+```
+
+Verify that you can run `docker` commands without `sudo`.
+
+```bash
+docker run hello-world
+```
+
+**Configure Docker to start on boot with systemd**
+
+```bash
+sudo systemctl enable docker.service
+sudo systemctl enable containerd.service
+```
+
+[**配置 Docker Hub 镜像加速**](https://gitee.com/wanfeng789/docker-hub)
+
+创建或修改 /etc/docker/daemon.json：
+
+```bash
+sudo mkdir -p /etc/docker
+```
+
+```bash
+sudo tee /etc/docker/daemon.json <<EOF
+{
+    "registry-mirrors": [
+        "https://docker.1ms.run",
+        "https://docker.1panel.live"
+    ]
+}
+EOF
+```
+
+```bash
+sudo systemctl daemon-reload
+```
+
+```bash
+sudo systemctl restart docker
+```
+
+检查加速是否生效
+
+使用 `sudo docker info`查看docker系统信息，如果从结果中看到了你配置的加速地址，说明配置成功。
+
+```
+Registry Mirrors:
+ [...]
+ https://docker.1panel.live
+```
+
+可以通过运行映像来验证是否配置成功。
+
+```bash
+docker run hello-world
+```
+
+4. 安装NVIDIA Container Toolkit
+
+Docker默认不支持GPU，需先安装NVIDIA官方提供的容器工具包。需要确保已经安装了Nvidia Driver。
+
+```bash
+# 添加NVIDIA仓库
+curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey | sudo gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg \
+  && curl -s -L https://nvidia.github.io/libnvidia-container/stable/deb/nvidia-container-toolkit.list | \
+    sed 's#deb https://#deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://#g' | \
+    sudo tee /etc/apt/sources.list.d/nvidia-container-toolkit.list
+
+sudo apt-get update
+sudo apt-get install -y nvidia-container-toolkit nvidia-container-runtime
+
+# 重启Docker服务
+sudo systemctl daemon-reload
+sudo systemctl restart docker
+```
+
+安装完成后可以新建一个容器测试一下：
+
+```bash
+sudo docker run -it --name test_nvidia_docker --gpus all nvidia/cuda:12.4.1-cudnn-devel-ubuntu22.04
+```
+
+其中最后的参数`nvidia/cuda:12.4.1-cudnn-devel-ubuntu22.04` 是Nvidia官方的镜像，需要根据工作站主机中实际安装的CUDA版本进行修改，版本可以用`nvcc -V`查看。
+
+进入容器之后运行 `nvidia-smi` 命令，有输出即为成功。
+
+5. 安装Docker可视化管理工具
+
+**Portainer**
+
+Deployment:
+
+First, create the volume that Portainer Server will use to store its database:
+
+```bash
+docker volume create portainer_data
+```
+
+Then, download and install the Portainer Server container:
+
+```bash
+docker run -d -p 8000:8000 -p 9443:9443 --name portainer --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data portainer/portainer-ce:lts
+```
+
+By default, Portainer generates and uses a self-signed SSL certificate to secure port `9443`. Alternatively you can provide your own SSL certificate [during installation](https://docs.portainer.io/advanced/ssl#using-your-own-ssl-certificate-on-docker-standalone) or [via the Portainer UI](https://docs.portainer.io/admin/settings#ssl-certificate) after installation is complete.
+
+If you require HTTP port `9000` open for legacy reasons, add the following to your `docker run` command:
+
+```bash
+docker run -d -p 9000:9000 --name portainer --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data portainer/portainer-ce:lts
+```
+
+Portainer Server has now been installed. You can check to see whether the Portainer Server container has started by running `docker ps`:
+
+```
+root@server:~# docker ps
+CONTAINER ID   IMAGE                          COMMAND                  CREATED       STATUS      PORTS                                                                                  NAMES             
+de5b28eb2fa9   portainer/portainer-ce:lts     "/portainer"             2 weeks ago   Up 9 days   0.0.0.0:8000->8000/tcp, :::8000->8000/tcp, 0.0.0.0:9443->9443/tcp, :::9443->9443/tcp   portainer
+```
+
+Logging In:
+
+Now that the installation is complete, you can log into your Portainer Server instance by opening a web browser and going to:
+
+```
+https://localhost:9443
+http://localhost:9000
+```
+
+Replace `localhost` with the relevant IP address or FQDN if needed, and adjust the port if you changed it earlier.
+
+
+
+Chrome浏览器新建管理员时出现`Unable to create administrator user`错误 / 登录时出现`Unable to login`错误：
+
+尝试清除该网页的浏览器缓存：F12打开开发者工具--切换到"应用"栏--点击"存储"中的"清除网站数据"，刷新页面即可解决该问题。
+
+### 3.6 安装Docker Desktop
 
 [Install Docker Engine on Ubuntu](https://docs.docker.com/engine/install/ubuntu/)
 
