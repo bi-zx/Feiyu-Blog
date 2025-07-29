@@ -1,0 +1,125 @@
+---
+title: 'Ubuntu部署Stable Diffusion'
+description: 'Ubuntu通过stable-diffusion-webui本地部署Stable Diffusion'
+publishDate: '2025-04-06'
+updatedDate: '2025-04-06'
+heroImage: { src: './thumbnail.jpg', color: '#64574D' }
+tags: ['Stable Diffusion']
+language: '中文'
+draft: false
+comment: true
+---
+
+import { Steps, Aside, Tabs, TabItem } from 'astro-pure/user'
+
+## 一、安装
+
+### 1.创建虚拟环境
+
+```bash
+conda create -n sd python==3.10.16
+conda activate sd
+```
+
+### 2.安装Pytorch
+
+使用`nvcc -V`查看自己的cuda版本，安装对应的torch版本
+
+```bash
+pip install torch==2.5.1 torchvision==0.20.1 torchaudio==2.5.1 --index-url https://download.pytorch.org/whl/cu124
+```
+
+### 3.安装stable-diffusion-webui
+
+```bash
+git clone https://github.com/AUTOMATIC1111/stable-diffusion-webui.git
+cd ./stable-diffusion-webui
+pip install -r requirements.txt
+pip install xformers==0.0.29
+```
+
+## 二、使用
+
+### 启动WebUI服务
+
+```bash
+# 添加 --listen 以监听所有端口，实现局域网访问
+# 受限于SD的安全策略，开启监听后默认不允许安装插件；添加 --enable-insecure-extension-access 以启用不安全扩展访问
+# 添加 --xformers 以启用xformers
+python launch.py --listen --port=7860 --theme=dark --xformers --enable-insecure-extension-access
+```
+
+首次执行该命令，会自动下载模型等文件，建议科学上网。
+
+### 自定义主页上方快速设置
+
+依次点击Settings-User interface-User interface，找到Quicksettings list。
+
+建议搜索并添加 `sd_vae` 和 `CLIP_stop_at_last_layers`。
+
+### 设置SD WebUI中文界面
+
+安装汉化插件
+
+1. 进入 Stable Diffusion WebUI 界面，点击菜单栏的【Extensions】选项，进入插件管理页面。
+2. 选择【Install from URL】，输入URL: https://github.com/dtlnor/stable-diffusion-webui-localization-zh_CN，点击Install
+3. 安装完成后，回到Installed页面，看到【stable-diffusion-webui-localization-zh_CN】插件已经出现在已安装插件列表中。勾选该插件，点击Apply ang quit，重启UI界面。
+4. 依次点击Settings-User interface-User interface，找到Localization，将其改为zh_CN，点击Apply settings和Reload UI以应用中文。
+
+### 添加模型
+
+1. 在[civitai](https://civitai.com/)等网站下载所需模型，将模型文件放在 `./stable-diffusion-webui/models/Stable-diffusion` 目录下，将VAE模型放在 `./stable-diffusion-webui/models/VAE` 目录下。
+2. Stable Diffusion checkpoint和SD VAE分别选择合适的模型。
+
+## 三、设置系统服务
+
+创建服务文件
+
+```bash
+sudo vim /etc/systemd/system/stable-diffusion.service
+```
+
+写入以下内容，根据实际情况修改虚拟环境名字和launch.py路径：
+
+```
+[Unit]
+Description=Stable Diffusion Service
+After=network.target
+ 
+[Service]
+Type=simple
+ExecStart=/bin/bash -c 'source /home/feiyu/anaconda3/etc/profile.d/conda.sh && conda activate sd && cd /home/feiyu/Softwares/stable-diffusion-webui/ && python launch.py --listen --port=7860 --theme=dark --xformers --enable-insecure-extension-access'
+User=feiyu
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+```
+
+重新加载服务配置文件，启动服务并设置开机自启动：
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl start stable-diffusion.service
+sudo systemctl enable stable-diffusion.service
+```
+
+## 四、报错解决
+
+### 1.生成图片时出现以下错误：
+
+```
+*** Error verifying pickled file from /home/feiyu/Softwares/stable-diffusion-webui/models/VAE-approx/vaeapprox-sdxl.pt
+*** -----> !!!! The file is most likely corrupted !!!! <-----
+*** You can skip this check with --disable-safe-unpickle commandline argument, but that is not going to help you.
+```
+
+原因：网络问题导致下载的`vaeapprox-sdxl.pt`或`model.pt`文件损坏
+
+解决方案：删除`./stable-diffusion-webui/models/VAE-approx/`目录下的`vaeapprox-sdxl.pt`或`model.pt`，将会在生成图片时自动重新下载。若仍然下载失败，需要在GitHub上手动下载，链接地址为：https://github.com/AUTOMATIC1111/stable-diffusion-webui/releases/tag/v1.0.0-pre
+
+下载后放到./stable-diffusion-webui/models/VAE-approx/目录下即可。
+
+
+
+> [Stable Diffusion XL搭建_vaeapprox-sdxl.pt-CSDN博客](https://blog.csdn.net/benben044/article/details/133768900)
