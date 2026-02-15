@@ -77,6 +77,15 @@ docker logs -f ragflow-server
 
 添加完成后在RAGFlow右上角修改系统模型设置
 
-如果添加模型遇到102的报错：102 Fail to access model(Smegmma-9B-v1g-Q4_K_M).'NoneType' object is not subscriptable
+如果添加模型出现以下报错：
 
-将基础Url改为：http://host.docker.internal:1234
+102 Fail to access model(Smegmma-9B-v1g-Q4_K_M).'NoneType' object is not subscriptable
+
+https://github.com/infiniflow/ragflow/issues/5090
+
+Error 111: Fail to access model(deepseek-r1:8b). Connection refused
+
+将基础Url改为：http://host.docker.internal:1234 或 http://host.docker.internal:11434
+
+
+原因是你的 ragflow 请求了 Docker 的 11434 端口，而这个端口并未绑定到主机；或者你输入的 IP 地址错误，与主机不在同一子网。Docker 中的 ragflow 会请求主机的 11434 端口。
